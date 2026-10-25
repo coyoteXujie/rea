@@ -761,7 +761,7 @@ const clientConfigurationDesired = async (
   );
   if (!environment.ok) throw environment.error;
   const registrationEnvironment =
-    client.name === "kimi" &&
+    (client.name === "kimi" || client.name === "copilot_cli") &&
     snapshotEnvironment(environment.value).REA_MCP_INPUT_SCHEMA_PROFILE ===
       undefined
       ? {

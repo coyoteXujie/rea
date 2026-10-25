@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
+import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { FakeSetupHost, options } from "./Setup.fixture.js";
 import { runSetup } from "./Setup.js";
+import { configureClientConfiguration } from "./SetupClientConfiguration.js";
 import { setupRegistrationCommand } from "./SetupHost.js";
 import { CURRENT_ENTRYPOINT_PATH } from "../process/CurrentEntrypointPath.js";
 import { discoverSetupState } from "./SetupPlan.js";
+import { createTestTempDirectory } from "../../tests/fixtures/temporaryDirectory.js";
 import type { MsixPackageView } from "./MsixPackageStorage.js";
 import type { SetupClient } from "./SupportedClients.js";
 
@@ -190,6 +193,55 @@ describe("setup workflow", () => {
       operation: "update",
     });
     expect(host.configurations).toBe(0);
+  });
+});
+
+describe("GitHub Copilot CLI registration", () => {
+  it("uses compact input schemas by default but preserves an explicit full profile", async () => {
+    const directory = await createTestTempDirectory("rea-copilot-schema-");
+    const configPath = join(directory, "mcp-config.json");
+    const client: SetupClient = {
+      name: "copilot_cli",
+      displayName: "GitHub Copilot CLI",
+      configPath,
+      format: "copilot_cli",
+    };
+
+    const created = await configureClientConfiguration(client, {}, [
+      "rea",
+      "mcp",
+    ]);
+    expect(created.status).toBe("configured");
+    expect(JSON.parse(await readFile(configPath, "utf8"))).toMatchObject({
+      mcpServers: {
+        rea: { env: { REA_MCP_INPUT_SCHEMA_PROFILE: "compact" } },
+      },
+    });
+
+    await writeFile(
+      configPath,
+      JSON.stringify({
+        mcpServers: {
+          rea: {
+            type: "stdio",
+            command: "rea",
+            args: ["mcp"],
+            tools: ["*"],
+            env: { REA_MCP_INPUT_SCHEMA_PROFILE: "full" },
+          },
+        },
+      }),
+    );
+    const updated = await configureClientConfiguration(client, {}, [
+      "rea",
+      "mcp",
+    ]);
+    expect(updated.status).toBe("unchanged");
+    expect(JSON.parse(await readFile(configPath, "utf8"))).toMatchObject({
+      mcpServers: {
+        rea: { env: { REA_MCP_INPUT_SCHEMA_PROFILE: "full" } },
+      },
+    });
   });
 });
 

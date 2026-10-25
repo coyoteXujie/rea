@@ -25,11 +25,15 @@ through `copilot --model rea-gpt-4.1`. The local fixture requested
 your backend. This keeps every full schema and the actual wire model intact.
 It does not establish the effective client budget or fix the built-in-ID path.
 The existing compact profile passed native chat and analysis with the complete
-tool inventory on Linux using a loopback model fixture. After setup, add
-`"REA_MCP_INPUT_SCHEMA_PROFILE": "compact"` to the `env` object of the
-`mcpServers.rea` entry in Copilot's `mcp-config.json`, preserving its other
-settings, then restart the client. Compact advertisements can reduce nested
-schema constraints; REA still validates complete canonical inputs. Full-profile
+tool inventory on Linux using a loopback model fixture. New or refreshed
+registrations from `rea setup --client copilot_cli` select the compact profile
+unless the registration already specifies `REA_MCP_INPUT_SCHEMA_PROFILE`; setup
+preserves an explicit `full` choice. Re-run setup to update an existing
+registration, or change it manually by setting
+`"REA_MCP_INPUT_SCHEMA_PROFILE": "compact"` in the `env` object of the
+`mcpServers.rea` entry in Copilot's `mcp-config.json`, then restart the client.
+Compact advertisements can reduce nested schema constraints; REA still
+validates complete canonical inputs. Full-profile
 `gpt-5.4` metadata is also verified locally. Live model API acceptance and
 Windows remain unverified; see [native client verification](testing.md).
 
