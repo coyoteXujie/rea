@@ -1097,6 +1097,16 @@ Each line is `address<TAB>kind[<TAB>name]`, where kind is `function`, `code` or 
 
 Label seeds can name mapped uninitialized storage such as `.bss`; function and code seeds require initialized bytes.
 
+Ghidra's Objective-C Message Analyzer can log `ERROR: Required Objective-C
+data type not found in data type manager` and `Try adding libobjc.dylib` when
+the target's own data type manager lacks Objective-C types needed for
+message-send recovery ([Ghidra 12.1.4 source](https://github.com/NationalSecurityAgency/ghidra/blob/Ghidra_12.1.4_build/Ghidra/Features/Decompiler/src/main/java/ghidra/app/plugin/core/analysis/ObjcMessageAnalyzer.java)).
+This diagnostic alone does not establish that REA failed to open or analyze the
+target; inspect REA's structured result and coverage. Adding `libobjc.dylib` as
+a separate program does not add types to the imported target. If this analyzer's
+message-send recovery is not needed, disable it as shown below; doing so also
+omits the facts it would have produced.
+
 To skip a named Ghidra auto-analyzer (for example, when default auto-analysis
 stalls in one analyzer on a Swift/Objective-C arm64 Mach-O):
 
