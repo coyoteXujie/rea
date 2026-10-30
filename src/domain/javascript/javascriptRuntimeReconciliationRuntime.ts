@@ -94,7 +94,7 @@ const targetEntity = (
     frameKey: null,
     scriptKey: null,
     location,
-    staticKind: "renderer",
+    staticKind: target.type === "node" ? "javascript" : "renderer",
     sourceSha256: null,
     label: target.title,
     properties: {
